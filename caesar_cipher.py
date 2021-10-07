@@ -31,8 +31,10 @@ class CaesarCipher:
         return ''.join(clear_text)
 
 
-def crack_caesar_cipher(msg):
+def get_caesar_key(msg):
     """ Brute force the cipher shift, use PyEnchant to detect English words"""
+
+    key = None
 
     d = enchant.Dict('en_GB')
     for shift in range(1, 26):
@@ -40,10 +42,14 @@ def crack_caesar_cipher(msg):
         decrypt_text = caesar.decrypt(msg)
         for word in decrypt_text.split():
             if d.check(word):
-                print(decrypt_text)
-                return shift
+                key = shift
+            else:
+                key = None
+        
+        if key:
+            break
 
-    return False
+    return key
 
 
 if __name__ == '__main__':
@@ -54,9 +60,11 @@ if __name__ == '__main__':
     cipher_text = caesar.encrypt(msg)
     print(cipher_text)
 
-    # bruteforce the key
-    shift = crack_caesar_cipher(cipher_text)
-    if shift:
-        print(f'Shift used: {shift}')
+   # bruteforce the cipher key 
+    key = get_caesar_key(cipher_text)
+    if key:
+        caesar.generate_keys(key)
+        print(f'Key found : {key}')
+        print(f'Clear text: {caesar.decrypt(cipher_text)}')
     else:
-        print('Cracking attempt failed.')
+        print("Key not found")
